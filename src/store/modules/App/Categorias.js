@@ -1,5 +1,5 @@
 import axios from 'axios'
-axios.defaults.baseURL = 'http://localhost/Back-End/public/api/'
+axios.defaults.baseURL = 'https://apithundermonkey.com.br/api/finans/'
 export default {
     state: {
         categorias: [],
@@ -47,17 +47,48 @@ export default {
     },
     mutations: {
         adicionarCategoria(state, payload) {
-            payload.forEach((element) => {
-                state.categorias.push({
-                    categoria: element.categoria,
-                    icon: element.icon,
-                    color: element.color,
-                })
-            })            
+            if(payload.backEnd == true) {
+                payload.forEach((element) => {
+                    state.categorias.push({
+                        id: element.id,
+                        categoria: element.categoria,
+                        icon: element.icon,
+                        color: element.color,
+                    })
+                })  
+            }
+            else {
+                payload.forEach((element) => {
+                    state.categorias.push({
+                        categoria: element.categoria,
+                        icon: element.icon,
+                        color: element.color,
+                    })
+                })            
+            }
         },
+        newCategoria(state, payload) {
+            state.categorias.push(payload)
+        },
+        updateCategoria(state, payload) {
+            state.categorias.forEach(element => {
+                if(element.id == payload.id) {
+                    element.categoria = payload.categoria
+                    element.color = payload.color
+                    element.icon = payload.icon
+                }
+            })
+        },        
         deleteCategoria(state, payload) {
             state.categorias.splice(payload, 1)
         },
+        excluirCategoria(state, payload) {
+            state.categorias.forEach((element, i) => {
+                if(element.id == payload) {
+                    state.categorias.splice(i, 1)
+                }
+            })
+        }
     },
     actions: {
         uploadCategorias(state) {
@@ -75,12 +106,34 @@ export default {
                 resolve()
             })
         },
+        newCategoria({commit}, payload) {
+            return new Promise ((resolve) => {                
+                axios.post('/inserir/categorias', payload).then(() => {                    
+                    commit('newCategoria', payload)
+                    resolve()
+                })
+            })
+        },
+        deleteCategoria({commit}, payload) {
+            axios.delete('/deletar/categoria/'+payload).then(() => {
+                commit('excluirCategoria', payload)
+            })
+        },
         getCategorias(state) {
             let id = state.getters.usuario.id
             axios.get('/recuperar/categorias/' + id).then(res => {                
-                res.data.backEnd = true
+                res.data.backEnd = true                
                 state.commit('adicionarCategoria', res.data)
             })
+        },
+        updateCategorias({commit},payload) {
+            return new Promise ((resolve) => {
+                axios.put('/atualizar/categoria', payload).then(() => {
+                    commit('updateCategoria', payload)
+                    resolve()
+                })
+            })
+         
         }
     }
 }

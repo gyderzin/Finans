@@ -1,6 +1,6 @@
 import img from '@/assets/finance.png'
 import axios from 'axios'
-axios.defaults.baseURL = 'http://localhost/Back-End/public/api/'
+axios.defaults.baseURL = 'https://apithundermonkey.com.br/api/finans/'
 
 export default {
   state: {

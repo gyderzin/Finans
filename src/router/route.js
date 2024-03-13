@@ -19,7 +19,8 @@ Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/', component: ModeloLogin,
+    path: '/', 
+    component: ModeloLogin,
     children: [
       {path: '', component: Login},
       {path:'/inscreverse', component: Inscreverse}

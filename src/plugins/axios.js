@@ -4,7 +4,7 @@ import axios from 'axios'
 Vue.use({
     install(Vue) {    
         Vue.prototype.$http = axios.create({
-            baseURL: 'http://localhost/Back-End/public/api/',
+            baseURL: 'https://apithundermonkey.com.br/api/finans/',
         })     
     }
 })

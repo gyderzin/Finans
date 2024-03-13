@@ -1,5 +1,5 @@
 import axios from 'axios'
-axios.defaults.baseURL = 'http://localhost/Back-End/public/api/'
+axios.defaults.baseURL = 'https://apithundermonkey.com.br/api/finans/'
 import julius from '@/assets/perfil/julius.jpg'
 import img2 from '@/assets/perfil/img2.jpg'
 import img3 from '@/assets/perfil/img3.jpg'

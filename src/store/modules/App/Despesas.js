@@ -1,5 +1,5 @@
 import axios from 'axios'
-axios.defaults.baseURL = 'http://localhost/Back-End/public/api/'
+axios.defaults.baseURL = 'https://apithundermonkey.com.br/api/finans/'
 export default {
     state: {
         despesasFixas: [],
@@ -96,8 +96,8 @@ export default {
             })
         },
         deleteDespesaFixa(state, payload) {            
-            state.despesasFixas.forEach((element, i) => {                
-                if(i == payload) {
+            state.despesasFixas.forEach((element, i) => {                                
+                if(element.id == payload) {
                     state.despesasFixas.splice(i, 1)
                 }
             })            
