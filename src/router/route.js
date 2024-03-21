@@ -9,7 +9,9 @@ import Geral from '@/components/App/Paineis/Geral.vue'
 import DespesaConexão from '@/components/App/Paineis/Despesas/DespesaConexão.vue'
 import DespesasAvulsas from '@/components/App/Paineis/Despesas/Avulsas.vue'
 import DespesasFixas from '@/components/App/Paineis/Despesas/Fixas.vue'
-import Proventos from '@/components/App/Paineis/Proventos.vue'
+import ProventosConexão from '@/components/App/Paineis/Proventos/ProventoConexão.vue'
+import ProventosFixos from '@/components/App/Paineis/Proventos/Fixos.vue'
+import ProventosExtra from '@/components/App/Paineis/Proventos/Extra.vue'
 import Categorias from '@/components/App/Paineis/Categorias.vue'
 import Cartões from '@/components/App/Paineis/Cartões.vue'
 import Perfil from '@/components/App/Paineis/Perfil.vue'
@@ -33,11 +35,14 @@ const routes = [
     path: '/home', component: Home,
     children: [
       { path: '', component: Geral },
-      { path: '/home/despesas/', component: DespesaConexão , children: [        
+      { path: '/home/despesas/', component: DespesaConexão, children: [        
         { path: '', component: DespesasAvulsas },
         { path: 'fixas', component: DespesasFixas },
       ]},     
-      { path: '/home/proventos', component: Proventos },     
+      { path: '/home/proventos/', component: ProventosConexão, children: [
+        { path: '', component: ProventosExtra},
+        { path: 'fixos', component: ProventosFixos}
+      ] },     
       { path: '/home/cartões', component: Cartões },     
       { path: '/home/categorias', component: Categorias },     
       { path: '/home/perfil', component: Perfil },     
@@ -79,7 +84,7 @@ router.beforeEach((to, from, next) => {
   }
   if (
     to.path == "/home" || to.path == '/home/' || to.path == '/home/cartões' ||
-    to.path == '/home/despesas/' || to.path == '/home/despesas/fixas' || to.path == '/home/categorias' || to.path == '/home/proventos' || to.path == '/home/perfil'
+    to.path == '/home/despesas/' || to.path == '/home/despesas/fixas' || to.path == '/home/categorias' || to.path == '/home/proventos/' || to.path == '/home/proventos/fixos' || to.path == '/home/perfil'
   ) {
     if (autenticado == true) {
       let primeiroAcesso = store.getters.usuario.primeiroAcesso

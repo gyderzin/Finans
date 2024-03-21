@@ -50,15 +50,20 @@
           </v-list-item>
         </v-list-group>
 
-        <v-list-item :key="items[2].title" link :to="items[2].to" exact exact-active-class="light--text">
-          <v-list-item-icon>
-            <v-icon>{{ items[2].icon }}</v-icon>
-          </v-list-item-icon>
+        <v-list-group :key="items[2].title" v-model="items[2].active" :prepend-icon="items[2].icon"
+          no-action>
+          <template v-slot:activator>
+            <v-list-item-content>
+              <v-list-item-title v-text="items[2].title"></v-list-item-title>
+            </v-list-item-content>
+          </template>
 
-          <v-list-item-content>
-            <v-list-item-title>{{ items[2].title }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+          <v-list-item v-for="child in items[2].childs" :key="child.title" :to="child.to" exact exact-active-class="light--text">
+            <v-list-item-content>
+              <v-list-item-title v-text="child.title"></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-group>
 
         <v-list-item :key="items[3].title" link :to="items[3].to" exact exact-active-class="light--text">
           <v-list-item-icon>
@@ -117,7 +122,16 @@ export default {
             },
           ]
         },
-        { title: 'Proventos', icon: 'mdi-cash-plus', to: '/home/proventos' },
+        { title: 'Proventos', icon: 'mdi-cash-plus',
+          childs: [            
+            {
+              title: 'Extra', icon: 'mdi-cash-plus', to: '/home/proventos/'
+            },
+            {
+              title: 'Fixas', icon: 'mdi-cash-plus', to: '/home/proventos/fixos'
+            },
+          ]
+        },        
         { title: 'Cartões', icon: 'mdi-credit-card-multiple-outline', to: '/home/cartões' },
         { title: 'Categorias', icon: 'mdi-shape-outline', to: '/home/categorias' },
         { title: 'Perfil', icon: 'mdi-account', to: '/home/perfil' },

@@ -267,7 +267,6 @@ export default {
         getDespesasFixasPendentes(state, payload) {
             let id = state.getters.usuario.id
             axios.get('/recuperar/despesasFixasPendentes/' + id + '/' + payload.data).then((res) => {
-
                 if (payload.tipo == 'update') {
                     res.data.type = 'update'
                 }

@@ -69,7 +69,12 @@ export default new Vuex.Store({
         data: dataDespesas,
         tipo: 'get'
       })
-      state.dispatch('getProventos')
+      state.dispatch('getProventosAReceber', {
+        data: dataDespesasFixas,
+      })
+      state.dispatch('getProventosRecebidos', {
+        data: dataDespesasFixas,
+      })      
     }
   },
 
