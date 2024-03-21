@@ -15,7 +15,8 @@
 
         <v-tooltip right color="primary">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="warning" @click="dialogEditarProvento = true" fab dark absolute top left v-bind="attrs" v-on="on">
+            <v-btn color="warning" @click="dialogEditarProvento = true" fab dark absolute top left v-bind="attrs"
+              v-on="on">
               <v-icon>mdi-cog-outline</v-icon>
             </v-btn>
           </template>
@@ -28,14 +29,15 @@
 
         <v-tooltip left color="primary">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="indigo darken-2" fab dark absolute top right v-bind="attrs" v-on="on" @click="dialogNovoProvento = true">
+            <v-btn color="indigo darken-2" fab dark absolute top right v-bind="attrs" v-on="on"
+              @click="dialogNovoProvento = true">
               <v-icon>mdi-plus</v-icon>
             </v-btn>
           </template>
           <span>Adicionar provento fixo</span>
         </v-tooltip>
         <v-dialog width="570" v-model="dialogNovoProvento">
-            <NovoProvento :closeDialog="closeDialogNovoProventos"></NovoProvento>
+          <NovoProvento :closeDialog="closeDialogNovoProventos"></NovoProvento>
         </v-dialog>
 
       </v-row>
@@ -50,6 +52,20 @@
             </v-card-title>
             <v-data-table v-model="selected" :items="proventosAReceber" :headers="dessertHeaders" item-key="id"
               hide-default-footer height="330px" fixed-header>
+
+              <template v-slot:top>
+                <v-dialog v-model="dialogAddProvento" width="430">
+                  <AddProvento :closeDialog="closeDialogAddProvento" :addProvento="addProvento"
+                    :idProvento="idProventoAtual">
+                  </AddProvento>
+                </v-dialog>
+
+                <v-dialog width="430" v-model="dialogDeleteProventoFixo">
+                  <DeleteProvento :closeDialog="closeDialogDeleteProvento" :idProvento="idProventoAtual"
+                    :removerProventoFixo="removerProventoFixo"></DeleteProvento>
+                </v-dialog>
+
+              </template>
 
               <template v-slot:body="{ items }">
 
@@ -83,6 +99,7 @@
                       <v-tooltip top color="success">
                         <template v-slot:activator="{ on, attrs }">
                           <v-btn @mouseenter="item.ico = 'mdi-check'; item.color = 'success'"
+                            @click="changeModal(item.id, 'add')"
                             @mouseout="item.ico = 'mdi-clock-alert-outline'; item.color = 'orange'" fab dark x-small
                             :color="item.color" v-bind="attrs" v-on="on">
                             <v-icon @mouseenter="item.ico = 'mdi-check'; item.color = 'success'"
@@ -175,9 +192,11 @@
 import MouthPicker from '@/views/Pickers/Month.vue'
 import NovoProvento from '@/views/Dialogs/App/Proventos/NovoProvento.vue'
 import EditarProvento from '@/views/Dialogs/App/Proventos/EditarProventos.vue'
+import AddProvento from '@/views/Dialogs/App/Proventos/AddProvento.vue'
+import DeleteProvento from '@/views/Dialogs/App/Proventos/DeleteProvento.vue'
 export default {
   components: {
-    MouthPicker, NovoProvento, EditarProvento
+    MouthPicker, NovoProvento, EditarProvento, AddProvento, DeleteProvento
   },
   data() {
     return {
@@ -195,46 +214,84 @@ export default {
         { text: 'Situação', value: 'action', sortable: false },
       ],
       dialogNovoProvento: false,
-      dialogEditarProvento: false
+      dialogEditarProvento: false,
+      dialogAddProvento: false,
+      idProventoAtual: undefined,
+      dialogDeleteProventoFixo: undefined
     }
   },
   methods: {
     changeMes(newVal) {
       this.mes = newVal
     },
+    addProvento(id, provento) {
+      this.proventosAReceber.forEach((element, i) => {
+        if (element.id == id) {
+          this.$store.dispatch('receberProvento', provento).then((res) => {
+            element.id = res
+            this.$store.commit('addProventoRecebido', element)
+            this.proventosAReceber.splice(i, 1)
+            let alert = {
+              state: true,
+              type: 'success',
+              message: 'Provento recebido com sucesso!',
+            }
+            this.$store.commit('changeAlert', alert)
+            this.dialogAddProvento = false
+          })
+        }
+      });
+    },
+    removerProventoFixo(idProventoFixo) {
+      this.$store.dispatch('removerProventoRecebido', idProventoFixo).then(() => {
+        let alert = {
+          state: true,
+          type: 'success',
+          message: 'Provento devolvido com sucesso!',
+        }
+        this.$store.commit('changeAlert', alert)
+        this.dialogDeleteProventoFixo = false
+      })
+    },
     changeModal(id, dialog) {
       if (dialog == 'add') {
-        this.dialogAddDespesaFixa = true
+        this.dialogAddProvento = true
       }
       else if (dialog == 'remove') {
-        this.dialogDeleteDespesaFixa = true
+        this.dialogDeleteProventoFixo = true
       }
-      this.idDespesaAtual = id
-    },    
-    closeDialogNovoProventos() {      
+      this.idProventoAtual = id
+    },
+    closeDialogNovoProventos() {
       this.dialogNovoProvento = false
     },
-    closeDialogEditarProvento() {      
+    closeDialogEditarProvento() {
       this.dialogEditarProvento = false
+    },
+    closeDialogAddProvento() {
+      this.dialogAddProvento = false
+    },
+    closeDialogDeleteProvento() {
+      this.dialogDeleteProventoFixo = false
     }
-  }, 
+  },
   computed: {
-      proventosAReceber() {
-        let provento = this.$store.getters.proventosAReceber
-        provento.forEach(element => {
-          element['ico'] = 'mdi-clock-alert-outline'
-          element['color'] = 'orange'
-        })
-        return provento
-      },
-      proventosRecebidos() {
-        let provento = this.$store.getters.proventosRecebidos
-        provento.forEach(element => {
-          element['ico'] = 'mdi-check'
-          element['color'] = 'success'
-        })
-        return provento
-      }
+    proventosAReceber() {
+      let provento = this.$store.getters.proventosAReceber
+      provento.forEach(element => {
+        element['ico'] = 'mdi-clock-alert-outline'
+        element['color'] = 'orange'
+      })
+      return provento
+    },
+    proventosRecebidos() {
+      let provento = this.$store.getters.proventosRecebidos
+      provento.forEach(element => {
+        element['ico'] = 'mdi-check'
+        element['color'] = 'success'
+      })
+      return provento
+    }
   },
   watch: {
     mes(newVal, oldVal) {

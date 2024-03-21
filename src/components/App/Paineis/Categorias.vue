@@ -19,7 +19,7 @@
             <span>Adicionar nova categoria</span>
           </v-tooltip>
 
-          <v-data-table hide-default-footer :headers="headers" class="elevation-1" :items="categorias">
+          <v-data-table hide-default-footer :headers="headers" class="elevation-1" :items="categorias" >
 
             <template v-slot:[`item.color`]="{ item }">
               <v-chip :color="item.color">

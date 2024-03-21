@@ -45,19 +45,39 @@ export default {
             state.mesAvulsoProventos = payload
         },
         adicionarProvento(state, payload) {
+            if (payload.type == 'update') {
+                state.proventos = []
+            }
             if (Array.isArray(payload) == true) {
                 payload.forEach(element => {
+                    let data = element.data.split('-')
+                    data = data[2] + '/' + data[1] + '/' + data[0]
                     state.proventos.push({
+                        id: element.id,
                         categoria: element.categoria,
-                        valor: element.valor
+                        valor: element.valor,
+                        data: data,
+                        descrição: element.descrição,
+                        fixo: element.fixo,
+                        actions: false
                     })
                 })
             } else {
+                let data = payload.data.split('-')
+                data = data[2] + '/' + data[1] + '/' + data[0]
                 state.proventos.push({
+                    id: payload.id,
                     categoria: payload.categoria,
-                    valor: payload.valor
+                    valor: payload.valor,
+                    data: data,
+                    descrição: payload.descrição,
+                    fixo: payload.fixo,
+                    actions: false
                 })
             }
+        },
+        addProventoRecebido(state, payload) {
+           state.proventosRecebidos.push(payload)
         },
         adicionarProventoFixo(state, payload) {
             if (Array.isArray(payload) == true) {
@@ -89,6 +109,7 @@ export default {
                     id: element.id,
                     categoria: element.categoria,
                     valor: element.valor,
+                    data: element.data,
                     action: false,
                 })
             })
@@ -115,14 +136,42 @@ export default {
                 })
             }
         },
-        updadeProventoFixo(state, payload) {            
-            state.proventosAReceber.forEach(element => {            
+        removerProventoRecebido(state, payload) {
+            state.proventosRecebidos.forEach((proventoRecebido, i) => {
+                if (proventoRecebido.id == payload) {
+                    state.proventosRecebidos.splice(i, 1)             
+                    state.proventosAReceber.push({
+                        id: proventoRecebido.id,
+                        categoria: proventoRecebido.categoria,
+                        valor: proventoRecebido.valor,
+                        action: false,
+                    })       
+                }
+            })
+            state.proventos.forEach((provento, i) => {           
+                console.log(provento, payload)     
+                if (provento.id == payload) {                    
+                    state.proventos.splice(i, 1)                    
+                }
+            })
+
+        },
+        updadeProventoFixo(state, payload) {
+            state.proventosAReceber.forEach(element => {
                 if (element.id == payload.id) {
                     element.categoria = payload.categoria
                     element.valor = payload.valor
-                    element.data = payload.dtcriação                    
+                    element.data = payload.dtcriação
                 }
             })
+        },
+        deletarProventoFixo(state, payload) {
+            state.proventosAReceber.forEach((element, i) => {
+                if(element.id == payload) {
+                    state.proventosAReceber.splice(i, 1)
+                }
+            })
+            
         },
         deleteProvento(state, payload) {
             state.proventos.splice(payload, 1)
@@ -161,7 +210,7 @@ export default {
                 })
             })
         },
-        updateProventoFixo(state, payload) {            
+        updateProventoFixo(state, payload) {
             return new Promise((resolve) => [
                 axios.put('/atualizar/proventoFixo', {
                     id: payload.id,
@@ -178,6 +227,58 @@ export default {
                 })
             ])
 
+        },
+        removerProventoRecebido(state, payload) {
+            return new Promise((resolve) => {                
+                axios.delete('/deletar/provento/' + payload).then(() => {
+                    state.commit('removerProventoRecebido', payload)
+                    resolve()
+                })
+            })
+        },
+        receberProvento(state, payload) {
+            return new Promise((resolve) => {
+                let id_usuario = state.getters.usuario.id
+                let provento = {
+                    id_usuario: id_usuario,
+                    categoria: payload.categoria,
+                    valor: payload.valor,
+                    descrição: payload.descrição,
+                    data: payload.data,
+                    fixo: payload.fixo
+                }
+                axios.post('/inserir/novoProvento', provento).then(() => {
+                    axios.get('/recuperar/ultimoProvento/' + id_usuario).then(res => {
+                        let id = res.data.id
+                        provento.id = id
+                        if (payload.fixo == 'false') {
+                            let mesFilter = state.getters.mesAvulsoProventos.split('-')
+                            let mesprovento = payload.data.split('-')
+                            if (mesFilter[1] == mesprovento[1]) {
+                                state.commit('adicionarProvento', provento)
+                            }
+                        }
+                        else if (payload.fixo == 'true') {
+                            let mesAtual = new Date().toISOString().substr(0, 7)
+                            mesAtual = mesAtual.split('-')
+                            let mesprovento = payload.data.split('-')
+                            if (mesAtual[1] == mesprovento[1]) {
+                                state.commit('adicionarProvento', provento)
+                            }
+                        }
+                    }).then(() => {     
+                        resolve(provento.id)                     
+                    })                                 
+                })
+            })
+        },
+        deleteProventoFixo(state, payload) {
+            return new Promise((resolve) => {
+                axios.delete('/deletar/proventoFixo/'+payload).then(() => {
+                    state.commit('deletarProventoFixo', payload) 
+                    resolve()
+                })
+            })
         },
         getProventosFixos(state) {
             return new Promise((resolve) => {

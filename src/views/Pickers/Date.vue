@@ -3,12 +3,13 @@
     min-width="auto">
     <template v-slot:activator="{ on, attrs }">
       <v-text-field :class="tipo == 'addDespesaFixa' ? 'tfDespesaFixa' : ''" flat
-        :prepend-icon="tipo !== 'addDespesaFixa' ? 'mdi-calendar' : ''" v-model="dataBR" label="Data da despesa" readonly
+        :prepend-icon="tipo !== 'addDespesaFixa' ? 'mdi-calendar' : ''" v-model="dataBR" 
+        :label="tipo == 'addProventoFixo' ? 'Data do pagamento' : 'Data da despesa'" readonly
         v-bind="attrs" v-on="on"></v-text-field>
     </template>
-    <v-date-picker v-if="tipo == 'add' || tipo == 'addDespesaFixa'" v-model="date" @input="menu = false" locale="pt-br"
-      :min="tipo == 'addDespesaFixa' ? mes + '-01' : ''"
-      :max="tipo == 'addDespesaFixa' ? mes + '-31' : ''"></v-date-picker>
+    <v-date-picker v-if="tipo == 'add' || tipo == 'addDespesaFixa' || tipo == 'addProventoFixo'" v-model="date" @input="menu = false" locale="pt-br"
+      :min="min"
+      :max="max"></v-date-picker>
     <v-date-picker v-if="tipo == 'edit'" v-model="dataEdit" @input="menu = false" locale="pt-br"></v-date-picker> 
   </v-menu>
 </template>
@@ -38,6 +39,13 @@ export default {
       if (mesAtual !== mesDespesa[1]) {
         this.date = mesDespesa[2] + '-' + mesDespesa[1] + '-' + mesDespesa[0]
       }
+    } else if (this.tipo == 'addProventoFixo' ) {
+      this.alterarData(this.dataBR)
+      let mesAtual = this.date.split('-')[1]
+      let mesProvento = this.dataBR.split('/')
+      if (mesAtual !== mesProvento[1]) {
+        this.date = mesProvento[2] + '-' + mesProvento[1] + '-' + mesProvento[0]
+      }
     }
   },
   data() {
@@ -48,14 +56,48 @@ export default {
     }
   },
   computed: {
+    min() {
+      let retorno = undefined
+      if(this.tipo == 'addDespesaFixa') {
+        retorno =  this.mes + '-01'
+      } else if (this.tipo == 'addProventoFixo') {
+        retorno =  this.mesProvento + '-01'
+      } else {
+        retorno = '' 
+      }
+      return retorno 
+    },
+    max() {
+      let retorno = undefined
+      if(this.tipo == 'addDespesaFixa') {
+        retorno =  this.mes + '-31'
+      } else if (this.tipo == 'addProventoFixo') {
+        retorno =  this.mesProvento + '-31'
+      } else {
+        retorno = '' 
+      }
+      return retorno 
+    },
     mes() {
       return this.$store.getters.mesFixo
+    },
+    mesProvento() {
+      return this.$store.getters.mesFixoProventos
     },
     dataBR() {
       let data = undefined
       if (this.tipo == 'add') {
         data = this.date.split('-')
       }
+      else if (this.tipo == 'addProventoFixo') {
+        data = this.date.split('-')
+        let mes = this.mesProvento.split('-')
+        if (data[1] != mes[1]) {
+          data[2] = '01'
+          data[1] = mes[1]
+          data[0] = mes[0]
+        }
+      } 
       else if (this.tipo == 'addDespesaFixa') {
         data = this.date.split('-')
         let mes = this.mes.split('-')
@@ -64,7 +106,7 @@ export default {
           data[1] = mes[1]
           data[0] = mes[0]
         }
-      }     
+      }
       else if (this.tipo == 'edit') {
         data = this.dataEdit.split('-')
       }

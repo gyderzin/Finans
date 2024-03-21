@@ -72,7 +72,7 @@
                         </template>
                     </v-simple-table>
                 </v-col>
-                <v-dialog v-model="dialogEditDespesaFixa" width="470">
+                <v-dialog v-model="dialogEditProventoFixo" width="470">
                     <v-card>
                         <v-row justify="center" class="pa-0 ma-0 info">
                             <v-card-title class="pa-2 ma-0 white--text">
@@ -90,8 +90,9 @@
                                         </v-select>
                                     </v-col>
                                     <v-col cols="6">
-                                        <v-text-field :id="'realEditarProventoFixo'" label="" v-model="proventoEdit.valor"
-                                            prefix="R$" type="text" @keyup="filtrarMoney('realEditarProventoFixo')"
+                                        <v-text-field :id="'realEditarProventoFixo'" label=""
+                                            v-model="proventoEdit.valor" prefix="R$" type="text"
+                                            @keyup="filtrarMoney('realEditarProventoFixo')"
                                             @blur="filtrarMoney('realEditarProventoFixo')"
                                             @focusin="filtrarMoney('realEditarProventoFixo')" prepend-icon="mdi-cash"
                                             required :rules="[v => !!v || 'Informe o valor da despesa']">
@@ -103,9 +104,9 @@
                                     <v-col cols="8" class="mt-1 pa-0">
                                         <MonthVue :changeMes="alterarData" :tipoDespesa="'editProventoFixo'"
                                             :editProventoFixo="{
-                                                    data: proventoEdit.dtcriação,
-                                                    indice: indiceProventoEdit
-                                            }">
+            data: proventoEdit.dtcriação,
+            indice: indiceProventoEdit
+        }">
                                         </MonthVue>
                                     </v-col>
                                 </v-row>
@@ -114,7 +115,7 @@
                                     <v-card-actions>
                                         <v-row class="pa-0 ma-0">
                                             <v-col cols="6" class="pa-0 ma-0">
-                                                <v-btn color="error" text @click="dialogEditDespesaFixa = false">
+                                                <v-btn color="error" text @click="dialogEditProventoFixo = false">
                                                     Cancelar
                                                 </v-btn>
                                             </v-col>
@@ -133,7 +134,7 @@
                     </v-card>
                 </v-dialog>
 
-                <v-dialog v-model="dialogDeleteDespesaFixa" width="370">
+                <v-dialog v-model="dialogDeleteProventoFixo" width="370">
                     <v-card>
                         <v-row justify="center" class="pa-0 ma-0 warning">
                             <v-card-title class="white--text pa-2 ma-0">
@@ -161,10 +162,10 @@
                                             <tr>
                                                 <td>
                                                     <v-chip class="pa-4" small
-                                                        :color="categoriaProps(proventoDelete.categoria, 'color')"
+                                                        color="primary"
                                                         text-color="white">
                                                         <v-icon left>
-                                                            {{ categoriaProps(proventoDelete.categoria, 'icon') }}
+                                                            mdi-cash-multiple
                                                         </v-icon>
                                                         {{ proventoDelete.categoria }}
                                                     </v-chip>
@@ -185,7 +186,7 @@
                                 <v-card-actions>
                                     <v-row class="pa-0 ma-0">
                                         <v-col cols="6" class="pa-0 ma-0">
-                                            <v-btn color="error" text @click="dialogDeleteDespesaFixa = false">
+                                            <v-btn color="error" text @click="dialogDeleteProventoFixo = false">
                                                 Cancelar
                                             </v-btn>
                                         </v-col>
@@ -239,7 +240,7 @@ export default {
             loading: false,
             proventosFixos: undefined,
             categorias: ['Alugueis', 'Investimentos', 'Pensão', 'Salário', 'Outros'],
-            dialogEditDespesaFixa: false,
+            dialogEditProventoFixo: false,
             categoriaSelected: undefined,
             indiceProventoEdit: 0,
             proventoEdit: {
@@ -248,7 +249,7 @@ export default {
                 valor: undefined,
                 dtcriação: undefined,
             },
-            dialogDeleteDespesaFixa: false,
+            dialogDeleteProventoFixo: false,
             indiceProventoDelete: 0,
             proventoDelete: {
                 id: undefined,
@@ -266,7 +267,7 @@ export default {
             this.proventoEdit.categoria = this.proventosFixos[this.indiceProventoEdit].categoria
             this.proventoEdit.valor = this.proventosFixos[this.indiceProventoEdit].valor
             this.proventoEdit.dtcriação = this.proventosFixos[this.indiceProventoEdit].dtcriação
-            this.dialogEditDespesaFixa = true
+            this.dialogEditProventoFixo = true
         },
         ativarDialogExcluir(i) {
             this.indiceProventoDelete = i
@@ -274,7 +275,7 @@ export default {
             this.proventoDelete.categoria = this.proventosFixos[this.indiceProventoDelete].categoria
             this.proventoDelete.valor = this.proventosFixos[this.indiceProventoDelete].valor
             this.proventoDelete.dtcriação = this.proventosFixos[this.indiceProventoDelete].dtcriação
-            this.dialogDeleteDespesaFixa = true
+            this.dialogDeleteProventoFixo = true
         },
         alterarData(value) {
             this.proventoEdit.dtcriação = value
@@ -286,7 +287,7 @@ export default {
             this.loading = true
             this.$store.dispatch('updateProventoFixo', this.proventoEdit).then(() => {
                 this.loading = false
-                this.dialogEditDespesaFixa = false
+                this.dialogEditProventoFixo = false
                 this.proventosFixos[this.indiceProventoEdit].categoria = this.proventoEdit.categoria
                 this.proventosFixos[this.indiceProventoEdit].valor = this.proventoEdit.valor
                 this.proventosFixos[this.indiceProventoEdit].dtcriação = this.proventoEdit.dtcriação
@@ -302,9 +303,9 @@ export default {
             valor = valor.replace('.', '').replace(',', '.')
             this.proventoDelete.valor = valor
             this.loadingDelete = true
-            this.$store.dispatch('deleteDespesaFixa', this.proventoDelete.id).then(() => {
+            this.$store.dispatch('deleteProventoFixo', this.proventoDelete.id).then(() => {
                 this.loadingDelete = false
-                this.dialogDeleteDespesaFixa = false
+                this.dialogDeleteProventoFixo = false
                 this.proventosFixos.splice(this.indiceProventoDelete, 1)
                 this.$store.commit('changeAlert', {
                     state: true,
