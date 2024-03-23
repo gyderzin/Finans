@@ -1,5 +1,5 @@
 <template>
-  <v-card height="97%" width="100%" class="mt-7" elevation="0">
+  <!-- <v-card height="97%" width="100%" class="mt-7" elevation="0">
     <v-row justify="center">
       <v-card-title>
         <h2>Perfil</h2>
@@ -33,7 +33,12 @@
         </v-card>
       </v-col>
     </v-row>
-  </v-card>
+  </v-card> -->
+  <v-row class="rowLoading">
+      <v-col class="d-flex justify-center mt-10">
+        <v-img src="https://ifch.ufpa.br/images/Imagens/loading.gif" alt> </v-img>
+      </v-col>
+    </v-row>
 </template>
   
 <script>
