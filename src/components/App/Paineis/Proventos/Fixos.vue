@@ -190,10 +190,10 @@
 
 <script>
 import MouthPicker from '@/views/Pickers/Month.vue'
-import NovoProvento from '@/views/Dialogs/App/Proventos/NovoProvento.vue'
-import EditarProvento from '@/views/Dialogs/App/Proventos/EditarProventos.vue'
-import AddProvento from '@/views/Dialogs/App/Proventos/AddProvento.vue'
-import DeleteProvento from '@/views/Dialogs/App/Proventos/DeleteProvento.vue'
+import NovoProvento from '@/views/Dialogs/App/ProventosFixos/NovoProvento.vue'
+import EditarProvento from '@/views/Dialogs/App/ProventosFixos/EditarProventos.vue'
+import AddProvento from '@/views/Dialogs/App/ProventosFixos/AddProvento.vue'
+import DeleteProvento from '@/views/Dialogs/App/ProventosFixos/DeleteProvento.vue'
 export default {
   components: {
     MouthPicker, NovoProvento, EditarProvento, AddProvento, DeleteProvento

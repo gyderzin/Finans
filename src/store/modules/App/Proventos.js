@@ -227,7 +227,7 @@ export default {
                 })
             ])
 
-        },
+        },  
         removerProventoRecebido(state, payload) {
             return new Promise((resolve) => {                
                 axios.delete('/deletar/provento/' + payload).then(() => {
@@ -251,7 +251,7 @@ export default {
                     axios.get('/recuperar/ultimoProvento/' + id_usuario).then(res => {
                         let id = res.data.id
                         provento.id = id
-                        if (payload.fixo == 'false') {
+                        if (payload.fixo == 'false') {                            
                             let mesFilter = state.getters.mesAvulsoProventos.split('-')
                             let mesprovento = payload.data.split('-')
                             if (mesFilter[1] == mesprovento[1]) {
@@ -306,9 +306,12 @@ export default {
                 state.commit('adicionarProventoRecebido', res.data)
             })
         },
-        getProventos(state) {
+        getProventos(state, payload) {
             let id = state.getters.usuario.id
-            axios.get('/recuperar/proventos/' + id).then((res) => {
+            axios.get('/recuperar/proventos/'+ id +'/'+ payload.data).then((res) => {
+                if (payload.tipo == 'update') {
+                    res.data.type = 'update'
+                }
                 state.commit('adicionarProvento', res.data)
             })
         }
