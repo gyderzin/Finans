@@ -6,6 +6,7 @@ export default {
         proventosRecebidos: [],
         proventosAReceber: [],
         proventosFixos: [],
+        proventoEdit: [],
         mesFixoProventos: undefined,
         mesAvulsoProventos: undefined
     },
@@ -15,6 +16,9 @@ export default {
         },
         proventosFixos(state) {
             return state.proventosFixos
+        },
+        proventoEdit(state) {
+            return state.proventoEdit
         },
         mesFixoProventos(state) {
             return state.mesFixoProventos
@@ -156,6 +160,31 @@ export default {
             })
 
         },
+        changeProventoEdit(state, payload) {
+            let provento = { ...payload }
+            state.proventoEdit = provento
+        },
+        setDateEditProvento(state, payload) {
+            state.proventoEdit.data = payload
+        },
+        uploadProvento(state, payload) {
+            state.proventos.forEach((element, i) => {
+                if (element.id == payload.id) {
+                    if (payload.deletar == true) {
+                        state.proventos.splice(i, 1)
+                    }
+                    else {
+                        let provento = state.proventos[i]
+                        provento.categoria = payload.categoria
+                        provento.cartão = payload.cartão
+                        provento.descrição = payload.descrição
+                        provento.data = payload.data
+                        provento.valor = payload.valor
+                    }
+                }
+            })
+
+        },
         updadeProventoFixo(state, payload) {
             state.proventosAReceber.forEach(element => {
                 if (element.id == payload.id) {
@@ -172,6 +201,13 @@ export default {
                 }
             })
             
+        },
+        deletarProvento(state, payload) {
+            state.proventos.forEach((element, i) => {
+                if (element.id == payload.id) {
+                    state.proventos.splice(i, 1)
+                }
+            })
         },
         deleteProvento(state, payload) {
             state.proventos.splice(payload, 1)
@@ -199,9 +235,9 @@ export default {
                     axios.get('/recuperar/ultimoProventoFixo/' + id).then(res => {
                         let id = res.data.id
                         let mesFixo = state.getters.mesFixoProventos.split('-')
-                        let mesDespesa = payload.data.split('-')
+                        let mesprovento = payload.data.split('-')
                         payload.id = id
-                        if (mesFixo[1] == mesDespesa[1]) {
+                        if (mesFixo[1] == mesprovento[1]) {
                             state.commit('adicionarProventoAReceber', payload)
                         }
                     }).then(() => {
@@ -272,6 +308,25 @@ export default {
                 })
             })
         },
+        updateProvento(state, payload) {
+            return new Promise((resolve) => {
+                axios.put('/atualizar/provento', {
+                    id: payload.id,
+                    categoria: payload.categoria,                    
+                    descrição: payload.descrição,
+                    valor: payload.valor,
+                    data: payload.data
+                }).then(() => {
+                    let mesFilter = state.getters.mesAvulsoProventos.split('-')
+                    let mesProvento = payload.data.split('/')
+                    if (mesFilter[1] != mesProvento[1]) {
+                        payload.deletar = true
+                    }
+                    state.commit('uploadProvento', payload)
+                    resolve()
+                })
+            })
+        },
         deleteProventoFixo(state, payload) {
             return new Promise((resolve) => {
                 axios.delete('/deletar/proventoFixo/'+payload).then(() => {
@@ -279,6 +334,25 @@ export default {
                     resolve()
                 })
             })
+        },
+        deletProvento(state, payload) {
+            if (payload.tipo == 'proventoEdit') {
+                return new Promise((resolve) => {
+                    let provento = state.getters.proventoEdit
+                    axios.delete('/deletar/provento/' + provento.id).then(() => {
+                        state.commit('deletarProvento', provento)
+                        resolve()
+                    })
+                })
+            }
+            else if (payload.tipo == 'proventoFixa') {
+                return new Promise((resolve) => {
+                    axios.delete('/deletar/provento/' + payload.id).then(() => {
+                        state.commit('deletarProvento', payload)
+                        resolve()
+                    })
+                })
+            }
         },
         getProventosFixos(state) {
             return new Promise((resolve) => {

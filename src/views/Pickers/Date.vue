@@ -10,7 +10,8 @@
     <v-date-picker v-if="tipo == 'add' || tipo == 'addDespesaFixa' || tipo == 'addProventoFixo'" v-model="date" @input="menu = false" locale="pt-br"
       :min="min"
       :max="max"></v-date-picker>
-    <v-date-picker v-if="tipo == 'edit'" v-model="dataEdit" @input="menu = false" locale="pt-br"></v-date-picker> 
+    <v-date-picker v-if="tipo == 'edit'" v-model="dataEditDespesa" @input="menu = false" locale="pt-br"></v-date-picker> 
+    <v-date-picker v-if="tipo == 'editProvento'" v-model="dataEditProvento" @input="menu = false" locale="pt-br"></v-date-picker> 
   </v-menu>
 </template>
 
@@ -108,11 +109,14 @@ export default {
         }
       }
       else if (this.tipo == 'edit') {
-        data = this.dataEdit.split('-')
+        data = this.dataEditDespesa.split('-')
+      }
+      else if (this.tipo == 'editProvento') {
+        data = this.dataEditProvento.split('-')
       }
       return data[2] + '/' + data[1] + '/' + data[0]
     },    
-    dataEdit: {
+    dataEditDespesa: {
       get() {
         let data = this.$store.getters.despesaEdited.data
         data = data.split('/')
@@ -122,6 +126,18 @@ export default {
         let data = newData.split('-')
         data = data[2] + '/' + data[1] + '/' + data[0]
         this.$store.commit('setDateEdit', data)
+      }
+    },
+    dataEditProvento: {
+      get() {
+        let data = this.$store.getters.proventoEdit.data
+        data = data.split('/')
+        return data[2] + '-' + data[1] + '-' + data[0]
+      },
+      set(newData) {
+        let data = newData.split('-')
+        data = data[2] + '/' + data[1] + '/' + data[0]
+        this.$store.commit('setDateEditProvento', data)
       }
     },
   },

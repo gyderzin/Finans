@@ -52,14 +52,19 @@
             fixed-header>
 
             <template v-slot:top>
+              <v-dialog v-model="dialogEditProvento" width="700">
+                <EditarProvento :closeDialog="closeDialogEdit" :dialog="dialogEditDespesa">
+                </EditarProvento>
+              </v-dialog>           
 
+              <v-dialog v-model="dialogDeletarProvento" width="450">
+                <DeletarProvento :closeDialog="closeDialogDelet" :dialog="dialogDeletarProvento">
+                </DeletarProvento>
+              </v-dialog>
             </template>
 
             <template v-slot:[`header.data-table-expand`]="{ }">
-              <span class="body-1 font-weight-bold black--text">
-                <!-- {{ parseFloat(valorTotal) | dinheiro }}  -->
-                R$ 500
-              </span>
+              <span class="body-1 font-weight-bold black--text"> {{ parseFloat(valorTotal) | dinheiro }} </span>
             </template>
 
             <template v-slot:[`item.categoria`]="{ item }">
@@ -127,9 +132,11 @@
 <script>
 import SelectCategoria from '@/views/Selects/SelectCategoria.vue'
 import AdicionarProventoExtra from '@/views/Dialogs/App/Proventos/AdicionarProvento.vue'
+import EditarProvento from '@/views/Dialogs/App/Proventos/EditProvento.vue'
+import DeletarProvento from '@/views/Dialogs/App/Proventos/DeletarProvento.vue'
 export default {
   components: {
-    SelectCategoria, AdicionarProventoExtra,
+    SelectCategoria, AdicionarProventoExtra, EditarProvento, DeletarProvento
   },
   created() {
     this.$store.commit('changeMesAvulsoProventos', this.date)
@@ -151,9 +158,12 @@ export default {
         { text: '', value: 'data-table-expand', sortable: false },
       ],
       dialogNovoProvento: false,
+      dialogEditProvento: false,
+      dialogDeletarProvento: false,
       date: new Date().toISOString().substr(0, 7),
       menu: false,
       modal: false,
+      filtroProventos: []
     }
   },
   methods: {
@@ -167,16 +177,64 @@ export default {
         tipo: 'update'
       })
     },
+    filtrarProventos(val) {
+      let filtro = []
+      this.proventos.forEach((provento) => {        
+        val.forEach((categoria) => {
+          console.log(provento.categoria, categoria)
+          if (provento.categoria == categoria) {
+            filtro.push(provento)
+          }
+        })
+      })
+      this.filtroProventos = filtro
+      return filtro
+    },
     changeCategoria(newVal) {
       this.categoria = newVal
     },
     closeDialogNew() {
       this.dialogNovoProvento = false
-    }
+    },
+    closeDialogEdit() {
+      this.dialogEditProvento = false
+    },
+    closeDialogDelet() {
+      this.dialogDeletarProvento = false
+    },
+    dialogEdit(provento) {
+      this.$store.commit('changeProventoEdit', provento)
+      this.dialogEditProvento = true
+    },
+    dialogDelet(delet) {
+      this.$store.commit('changeProventoEdit', delet)
+      this.dialogDeletarProvento = true
+    },
   },
   computed: {
     proventos() {
       return this.$store.getters.proventos
+    },
+    valorTotalProventos() {
+      return this.$store.getters.somaProventos
+    },
+    valorTotalFiltro() {
+      var soma = 0
+      this.filtroProventos.forEach(element => {
+        let n1 = element.valor
+        soma = parseFloat(n1) + parseFloat(soma)
+      });
+      return soma
+    },
+    valorTotal() {
+      let valorTotal = undefined
+      if (this.categoria.length == 0) {
+        valorTotal = this.valorTotalProventos
+      }
+      else {
+        valorTotal = this.valorTotalFiltro
+      }
+      return valorTotal
     },
     dataTable() {
       let dataTable = undefined
@@ -184,7 +242,7 @@ export default {
         dataTable = this.proventos
       }
       else {
-        dataTable = this.filtroDespesas
+        dataTable = this.filtroProventos
       }
       return dataTable
     },
@@ -210,7 +268,16 @@ export default {
   watch: {
     date() {
       this.$store.commit('changeMesAvulsoProventos', this.date)
-    }
+    },
+    categoria(newVal) {      
+      this.filtrarProventos(newVal)
+    },
+    categoriasProventos: {
+      handler() {
+        this.filtrarProventos(this.categoria)
+      },
+      deep: true
+    },
   },
 }
 </script>
